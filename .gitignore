@@ -1,0 +1,11 @@
+.*.sw?
+.DS_Store
+/.idea
+/target
+/swagger
+!/swagger/keep.go
+.env
+bin/
+.vscode/
+/tmp/
+__debug*
