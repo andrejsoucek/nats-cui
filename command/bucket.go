@@ -19,9 +19,10 @@ func SelectBucket(g *gocui.Gui, v *gocui.View) error {
 	if err != nil {
 		return err
 	}
+	jetstream.SelectBucket(line)
 	Log(g, "Selected bucket: "+line)
 
-	keys, err := getKeys(g, line)
+	keys, err := getKeys(g, jetstream.GetSelectedBucket())
 	if err != nil {
 		return err
 	}
@@ -44,6 +45,7 @@ func SelectBucket(g *gocui.Gui, v *gocui.View) error {
 }
 
 func UnselectBucket(g *gocui.Gui, v *gocui.View) error {
+	jetstream.UnselectBucket()
 	Log(g, "Unselected bucket")
 	g.SetCurrentView("buckets")
 

@@ -22,7 +22,7 @@ func CreateLayout(g *gocui.Gui) error {
 		}
 		g.SetCurrentView("buckets")
 	}
-	if v, err := g.SetView("keys", int(0.2*float32(maxX)), 1, int(0.4*float32(maxX)), maxY); err != nil {
+	if v, err := g.SetView("keys", int(0.2*float32(maxX)), 1, int(0.7*float32(maxX)), maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -31,7 +31,7 @@ func CreateLayout(g *gocui.Gui) error {
 		v.SelBgColor = gocui.ColorGreen
 		v.SelFgColor = gocui.ColorBlack
 	}
-	if v, err := g.SetView("main", int(0.4*float32(maxX)), 1, maxX, maxY); err != nil {
+	if v, err := g.SetView("value", int(0.7*float32(maxX)), 1, maxX, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}
@@ -39,7 +39,7 @@ func CreateLayout(g *gocui.Gui) error {
 		v.Wrap = true
 	}
 
-	if v, err := g.SetView("log", -1, maxY-5, maxX, maxY); err != nil {
+	if v, err := g.SetView("log", 1, maxY-15, maxX, maxY); err != nil {
 		if err != gocui.ErrUnknownView {
 			return err
 		}

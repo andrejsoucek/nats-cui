@@ -7,6 +7,8 @@ import (
 )
 
 var js nats.JetStreamContext
+var selectedBucket = ""
+var selectedKey = ""
 
 func GetJetStream() nats.JetStreamContext {
 	if js == nil {
@@ -21,4 +23,28 @@ func GetJetStream() nats.JetStreamContext {
 	}
 
 	return js
+}
+
+func GetSelectedBucket() string {
+	return selectedBucket
+}
+
+func SelectBucket(b string) {
+	selectedBucket = b
+}
+
+func UnselectBucket() {
+	selectedBucket = ""
+}
+
+func GetSelectedKey() string {
+	return selectedKey
+}
+
+func SelectKey(k string) {
+	selectedKey = k
+}
+
+func UnselectKey() {
+	selectedKey = ""
 }

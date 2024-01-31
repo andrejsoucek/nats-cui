@@ -21,5 +21,14 @@ func BindKeys(g *gocui.Gui) error {
 	if err := g.SetKeybinding("keys", gocui.KeyEsc, gocui.ModNone, command.UnselectBucket); err != nil {
 		return err
 	}
+	if err := g.SetKeybinding("keys", gocui.KeyEnter, gocui.ModNone, command.SelectKey); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("value", gocui.KeyEsc, gocui.ModNone, command.UnselectKey); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("value", gocui.KeyEnter, gocui.ModNone, command.SelectKey); err != nil {
+		return err
+	}
 	return nil
 }
