@@ -34,20 +34,22 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 
 	valueView.Clear()
 
+	fmt.Fprintln(valueView, "────────────── BUCKET INFORMATION ─────────────────────")
 	fmt.Fprintln(valueView, bold("Bucket TTL:"))
 	fmt.Fprintln(valueView, status.TTL())
-	fmt.Fprintln(valueView, "─────────────────────────────────────────────")
 
+	fmt.Fprintln(valueView, "──────────────── KEY INFORMATION ──────────────────────")
 	fmt.Fprintln(valueView, bold("Created:"))
 	fmt.Fprintln(valueView, value.Created())
 	fmt.Fprintln(valueView, bold("Expires:"))
 	fmt.Fprintln(valueView, value.Created().Add(status.TTL()))
 	fmt.Fprintln(valueView, bold("TTL:"))
 	fmt.Fprintln(valueView, value.Created().Add(status.TTL()).Sub(time.Now()))
-	fmt.Fprintln(valueView, "─────────────────────────────────────────────")
-
+	fmt.Fprintln(valueView, "──────────────────── VALUE ────────────────────────────")
 	fmt.Fprintln(valueView, bold("Value:"))
-	fmt.Fprintln(valueView, fmt.Sprint(value.Value()))
+	fmt.Fprintln(valueView, string(value.Value()))
+	fmt.Fprintln(valueView, bold("Raw Value:"))
+	fmt.Fprintln(valueView, value.Value())
 
 	g.SetCurrentView("value")
 
