@@ -53,7 +53,7 @@ func CreateLayout(g *gocui.Gui) error {
 			return err
 		}
 		v.Frame = false
-		fmt.Fprintln(v, "↑↓ - move cursor | Enter - select | Esc - unselect | Ctrl+C - quit")
+		fmt.Fprintln(v, "↑↓ - move cursor | Enter - select/refresh value | Esc - unselect | Del - remove selected key | Ctrl+C - quit")
 	}
 
 	return nil

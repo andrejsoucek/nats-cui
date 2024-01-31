@@ -4,7 +4,7 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-func CursorDown(g *gocui.Gui, v *gocui.View) error {
+func SelectDown(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
 		cx, cy := v.Cursor()
 		line, err := v.Line(cy + 1)
@@ -24,7 +24,7 @@ func CursorDown(g *gocui.Gui, v *gocui.View) error {
 	return nil
 }
 
-func CursorUp(g *gocui.Gui, v *gocui.View) error {
+func SelectUp(g *gocui.Gui, v *gocui.View) error {
 	if v != nil {
 		ox, oy := v.Origin()
 		cx, cy := v.Cursor()

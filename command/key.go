@@ -1,6 +1,7 @@
 package command
 
 import (
+	"errors"
 	"fmt"
 	"time"
 
@@ -24,6 +25,12 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 
 	status, value, err := getValue(g, jetstream.GetSelectedKey())
 	if err != nil {
+		if errors.Is(err, nats.ErrKeyNotFound) {
+			Log(g, fmt.Sprintf("Key %s not found", jetstream.GetSelectedKey()))
+			UnselectKey(g, v)
+			RefreshKeys(g)
+			return nil
+		}
 		return err
 	}
 
@@ -57,7 +64,6 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 }
 
 func UnselectKey(g *gocui.Gui, v *gocui.View) error {
-	Log(g, "Unselected key")
 	jetstream.UnselectKey()
 	g.SetCurrentView("keys")
 
@@ -67,6 +73,56 @@ func UnselectKey(g *gocui.Gui, v *gocui.View) error {
 	}
 
 	valueView.Clear()
+
+	return nil
+}
+
+func ConfirmDelete(g *gocui.Gui, v *gocui.View) error {
+	maxX, maxY := g.Size()
+	if v, err := g.SetView("confirm", maxX/2-150, maxY/2-10, maxX/2+150, maxY/2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Wrap = true
+		fmt.Fprintln(v, bold("Are you sure you want to delete the key?"))
+		fmt.Fprintln(v, jetstream.GetSelectedKey())
+		if _, err := g.SetCurrentView("confirm"); err != nil {
+			return err
+		}
+	}
+	if v, err := g.SetView("confirmHelp", maxX/2-150, maxY/2, maxX/2+150, maxY/2+2); err != nil {
+		if err != gocui.ErrUnknownView {
+			return err
+		}
+		v.Frame = false
+		fmt.Fprintln(v, "Enter - confirm | Esc - cancel")
+		if _, err := g.SetCurrentView("confirm"); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func HideConfirmationDialog(g *gocui.Gui, v *gocui.View) error {
+	g.DeleteView("confirm")
+	g.DeleteView("confirmHelp")
+	g.SetCurrentView("value")
+
+	return nil
+}
+
+func DeleteKey(g *gocui.Gui, v *gocui.View) error {
+	HideConfirmationDialog(g, v)
+	js := jetstream.GetJetStream()
+	kv, err := js.KeyValue(jetstream.GetSelectedBucket())
+	if err != nil {
+		return err
+	}
+	kv.Delete(jetstream.GetSelectedKey())
+	Log(g, "Deleted key: "+jetstream.GetSelectedKey())
+	UnselectKey(g, v)
+	RefreshKeys(g)
 
 	return nil
 }
@@ -85,6 +141,9 @@ func getValue(g *gocui.Gui, key string) (nats.KeyValueStatus, nats.KeyValueEntry
 
 	kve, err := kv.Get(key)
 	if err != nil {
+		if err != nil {
+			return nil, nil, err
+		}
 		return nil, nil, err
 	}
 
