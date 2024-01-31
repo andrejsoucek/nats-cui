@@ -1,8 +1,9 @@
 package jetstream
 
 import (
-	"log"
+	"fmt"
 
+	"github.com/andrejsoucek/nats-cui/config"
 	"github.com/nats-io/nats.go"
 )
 
@@ -11,14 +12,18 @@ var selectedBucket = ""
 var selectedKey = ""
 
 func GetJetStream() nats.JetStreamContext {
+	cfg := config.GetConfig()
 	if js == nil {
-		nc, err := nats.Connect("nats://localhost:4222", nats.UserInfo("trust", "super-secret-nats-password-admin"))
+		nc, err := nats.Connect(
+			fmt.Sprintf("nats://%s:%d", cfg.Host, cfg.Port),
+			nats.UserInfo(cfg.Username, cfg.Password),
+		)
 		if err != nil {
-			log.Panicln(err)
+			panic(err)
 		}
 		js, err = nc.JetStream()
 		if err != nil {
-			log.Panicln(err)
+			panic(err)
 		}
 	}
 

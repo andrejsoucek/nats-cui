@@ -28,7 +28,15 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 		if errors.Is(err, nats.ErrKeyNotFound) {
 			Log(g, fmt.Sprintf("Key %s not found", jetstream.GetSelectedKey()))
 			UnselectKey(g, v)
-			RefreshKeys(g)
+			err := RefreshKeys(g)
+			if err != nil {
+				if errors.Is(err, nats.ErrNoKeysFound) {
+					Log(g, fmt.Sprintf("Bucket %s is empty", jetstream.GetSelectedBucket()))
+					g.SetCurrentView("buckets")
+					return nil
+				}
+				return err
+			}
 			return nil
 		}
 		return err
@@ -122,7 +130,16 @@ func DeleteKey(g *gocui.Gui, v *gocui.View) error {
 	kv.Delete(jetstream.GetSelectedKey())
 	Log(g, "Deleted key: "+jetstream.GetSelectedKey())
 	UnselectKey(g, v)
-	RefreshKeys(g)
+	err = RefreshKeys(g)
+	if err != nil {
+		if errors.Is(err, nats.ErrNoKeysFound) {
+			Log(g, fmt.Sprintf("Bucket %s is empty", jetstream.GetSelectedBucket()))
+			g.SetCurrentView("buckets")
+			return nil
+		}
+		return err
+	}
+	g.SetCurrentView("keys")
 
 	return nil
 }

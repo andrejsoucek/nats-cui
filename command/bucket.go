@@ -37,17 +37,17 @@ func SelectBucket(g *gocui.Gui, v *gocui.View) error {
 }
 
 func RefreshKeys(g *gocui.Gui) error {
+	keysView, err := g.View("keys")
+	if err != nil {
+		return err
+	}
+	keysView.Clear()
+
 	keys, err := getKeys(g, jetstream.GetSelectedBucket())
 	if err != nil {
 		return err
 	}
 
-	keysView, err := g.View("keys")
-	if err != nil {
-		return err
-	}
-
-	keysView.Clear()
 	for _, key := range keys {
 		fmt.Fprintln(keysView, key)
 	}
