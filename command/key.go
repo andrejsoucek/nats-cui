@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/andrejsoucek/nats-cui/jetstream"
+	"github.com/andrejsoucek/nats-cui/text"
 	"github.com/jroimartin/gocui"
 	"github.com/nats-io/nats.go"
 )
@@ -42,29 +43,25 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 		return err
 	}
 
-	valueView, err := g.View("value")
+	biv, kiv, vv, err := clearViews(g)
 	if err != nil {
 		return err
 	}
 
-	valueView.Clear()
+	fmt.Fprintln(biv, text.Bold("Bucket TTL:"))
+	fmt.Fprintln(biv, status.TTL())
 
-	fmt.Fprintln(valueView, "────────────── BUCKET INFORMATION ─────────────────────")
-	fmt.Fprintln(valueView, bold("Bucket TTL:"))
-	fmt.Fprintln(valueView, status.TTL())
+	fmt.Fprintln(kiv, text.Bold("Created:"))
+	fmt.Fprintln(kiv, value.Created())
+	fmt.Fprintln(kiv, text.Bold("Expires:"))
+	fmt.Fprintln(kiv, value.Created().Add(status.TTL()))
+	fmt.Fprintln(kiv, text.Bold("TTL:"))
+	fmt.Fprintln(kiv, value.Created().Add(status.TTL()).Sub(time.Now()))
 
-	fmt.Fprintln(valueView, "──────────────── KEY INFORMATION ──────────────────────")
-	fmt.Fprintln(valueView, bold("Created:"))
-	fmt.Fprintln(valueView, value.Created())
-	fmt.Fprintln(valueView, bold("Expires:"))
-	fmt.Fprintln(valueView, value.Created().Add(status.TTL()))
-	fmt.Fprintln(valueView, bold("TTL:"))
-	fmt.Fprintln(valueView, value.Created().Add(status.TTL()).Sub(time.Now()))
-	fmt.Fprintln(valueView, "──────────────────── VALUE ────────────────────────────")
-	fmt.Fprintln(valueView, bold("Value:"))
-	fmt.Fprintln(valueView, string(value.Value()))
-	fmt.Fprintln(valueView, bold("Raw Value:"))
-	fmt.Fprintln(valueView, value.Value())
+	fmt.Fprintln(vv, text.Bold("Value:"))
+	fmt.Fprintln(vv, string(value.Value()))
+	fmt.Fprintln(vv, text.Bold("Raw Value:"))
+	fmt.Fprintln(vv, fmt.Sprintf("%#v", value.Value()))
 
 	g.SetCurrentView("value")
 
@@ -74,13 +71,7 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 func UnselectKey(g *gocui.Gui, v *gocui.View) error {
 	jetstream.UnselectKey()
 	g.SetCurrentView("keys")
-
-	valueView, err := g.View("value")
-	if err != nil {
-		return err
-	}
-
-	valueView.Clear()
+	clearViews(g)
 
 	return nil
 }
@@ -92,7 +83,7 @@ func ConfirmDelete(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 		v.Wrap = true
-		fmt.Fprintln(v, bold("Are you sure you want to delete the key?"))
+		fmt.Fprintln(v, text.Bold("Are you sure you want to delete the key?"))
 		fmt.Fprintln(v, jetstream.GetSelectedKey())
 		if _, err := g.SetCurrentView("confirm"); err != nil {
 			return err
@@ -103,7 +94,7 @@ func ConfirmDelete(g *gocui.Gui, v *gocui.View) error {
 			return err
 		}
 		v.Frame = false
-		fmt.Fprintln(v, "Enter - confirm | Esc - cancel")
+		fmt.Fprintln(v, text.Green(text.Bold("Enter - confirm"))+text.Bold(text.Default(" | "))+text.Bold(text.Red("Esc - cancel")))
 		if _, err := g.SetCurrentView("confirm"); err != nil {
 			return err
 		}
@@ -167,6 +158,26 @@ func getValue(g *gocui.Gui, key string) (nats.KeyValueStatus, nats.KeyValueEntry
 	return status, kve, nil
 }
 
-func bold(s string) string {
-	return fmt.Sprintf("%s%s%s", "\033[1m", s, "\033[0m")
+func clearViews(g *gocui.Gui) (*gocui.View, *gocui.View, *gocui.View, error) {
+
+	biv, err := g.View("bucketInfo")
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	kiv, err := g.View("keyInfo")
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	vv, err := g.View("value")
+	if err != nil {
+		return nil, nil, nil, err
+	}
+
+	biv.Clear()
+	kiv.Clear()
+	vv.Clear()
+
+	return biv, kiv, vv, nil
 }

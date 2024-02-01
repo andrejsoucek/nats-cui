@@ -5,6 +5,8 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
+var previousView string
+
 func BindKeys(g *gocui.Gui) error {
 	if err := g.SetKeybinding("", gocui.KeyArrowDown, gocui.ModNone, command.SelectDown); err != nil {
 		return err
@@ -13,6 +15,13 @@ func BindKeys(g *gocui.Gui) error {
 		return err
 	}
 	if err := g.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, command.Quit); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("", 'l', gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		previousView = g.CurrentView().Name()
+		g.SetCurrentView("log")
+		return nil
+	}); err != nil {
 		return err
 	}
 
@@ -41,6 +50,28 @@ func BindKeys(g *gocui.Gui) error {
 		return err
 	}
 	if err := g.SetKeybinding("confirm", gocui.KeyEsc, gocui.ModNone, command.HideConfirmationDialog); err != nil {
+		return err
+	}
+
+	if err := g.SetKeybinding("log", gocui.KeyArrowUp, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			command.ScrollView(g, v, -1)
+			return nil
+		}); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("log", gocui.KeyArrowDown, gocui.ModNone,
+		func(g *gocui.Gui, v *gocui.View) error {
+			command.ScrollView(g, v, 1)
+			return nil
+		}); err != nil {
+		return err
+	}
+	if err := g.SetKeybinding("log", gocui.KeyEsc, gocui.ModNone, func(g *gocui.Gui, v *gocui.View) error {
+		v.Autoscroll = true
+		g.SetCurrentView(previousView)
+		return nil
+	}); err != nil {
 		return err
 	}
 
