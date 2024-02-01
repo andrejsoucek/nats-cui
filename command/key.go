@@ -43,13 +43,10 @@ func SelectKey(g *gocui.Gui, v *gocui.View) error {
 		return err
 	}
 
-	biv, kiv, vv, err := clearViews(g)
+	kiv, vv, err := clearViews(g)
 	if err != nil {
 		return err
 	}
-
-	fmt.Fprintln(biv, text.Bold("Bucket TTL:"))
-	fmt.Fprintln(biv, status.TTL())
 
 	fmt.Fprintln(kiv, text.Bold("Created:"))
 	fmt.Fprintln(kiv, value.Created())
@@ -158,26 +155,19 @@ func getValue(g *gocui.Gui, key string) (nats.KeyValueStatus, nats.KeyValueEntry
 	return status, kve, nil
 }
 
-func clearViews(g *gocui.Gui) (*gocui.View, *gocui.View, *gocui.View, error) {
-
-	biv, err := g.View("bucketInfo")
-	if err != nil {
-		return nil, nil, nil, err
-	}
-
+func clearViews(g *gocui.Gui) (*gocui.View, *gocui.View, error) {
 	kiv, err := g.View("keyInfo")
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	vv, err := g.View("value")
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, err
 	}
 
-	biv.Clear()
 	kiv.Clear()
 	vv.Clear()
 
-	return biv, kiv, vv, nil
+	return kiv, vv, nil
 }

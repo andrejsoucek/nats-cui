@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/andrejsoucek/nats-cui/jetstream"
+	"github.com/andrejsoucek/nats-cui/text"
 	"github.com/jroimartin/gocui"
 	"github.com/nats-io/nats.go"
 )
@@ -76,6 +77,20 @@ func getKeys(g *gocui.Gui, bucket string) ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	status, err := kv.Status()
+	if err != nil {
+		return nil, err
+	}
+
+	biv, err := g.View("bucketInfo")
+	if err != nil {
+		return nil, err
+	}
+	biv.Clear()
+
+	fmt.Fprintln(biv, text.Bold("Bucket TTL:"))
+	fmt.Fprintln(biv, status.TTL())
 
 	keys, err := kv.Keys()
 	if err != nil {
